@@ -33,16 +33,23 @@ app.post('/project/settings/list', (req, res) => {
   })
 })
 
-app.post('/project/settings/get', (req, res) => {
-    res.json({status : "not handled !"})
+app.get('/project/settings/get', (req, res) => {
+console.log(req.query.category_id);
+	db.collection('category').find({category_id : req.query.category_id}).toArray((err, result) => {
+
+    		if (err) return console.log(err)
+    		console.log(result)
+		res.json({project_id : req.query.project_id,category : result[0]});
+  	})
 })
 
 app.post('/project/settings/set', (req, res) => {
   var category = req.body.category;
-  if(req.body.operation == "add"){
+var categoryId = new ObjectID().toString();
+if(req.body.operation == "add"  || req.body.operation=="edit"){
     for(var i=0;i<category.length;i++) {
       var data = category[i];
-      data.category_id = new ObjectID()
+      data.category_id = categoryId
       db.collection('category').save(data, (err, result) => {
         if (err) return console.log(err)
         console.log('saved to database')
@@ -69,6 +76,6 @@ app.post('/project/settings/set', (req, res) => {
           })
     }
     }
-  res.json({status : true})
+  res.json({status : true,category_id : categoryId})
 
 })
